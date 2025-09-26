@@ -29,6 +29,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { DashboardHeader } from "@/components/dashboard-header"
 import { useToast } from "@/hooks/use-toast"
 import {
   Leaf,
@@ -143,10 +144,7 @@ export default function DashboardPage() {
     plantsWateredToday: plants.filter((p) => p.lastWatered === new Date().toISOString().split("T")[0]).length,
   }
 
-  const handleLogout = () => {
-    // Simulation de déconnexion - redirection vers la page d'accueil
-    router.push("/")
-  }
+  // handleLogout moved to DashboardHeader component
 
   const resetForm = () => {
     setFormData({
@@ -171,7 +169,7 @@ export default function DashboardPage() {
       needsWater: false,
     }
 
-    setPlants([...plants, newPlant])
+    setPlants([newPlant, ...plants])
     setIsAddDialogOpen(false)
     resetForm()
   }
@@ -255,146 +253,29 @@ export default function DashboardPage() {
     })
   }
 
-  const PlantForm = ({ isEdit = false }: { isEdit?: boolean }) => (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Nom de la plante *</Label>
-          <Input
-            id="name"
-            value={formData.name}
-          onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-            placeholder="ex: Mon Monstera"
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="species">Espèce *</Label>
-          <Input
-            id="species"
-            value={formData.species}
-          onChange={(e) => setFormData((prev) => ({ ...prev, species: e.target.value }))}
-            placeholder="ex: Monstera deliciosa"
-            required
-          />
-        </div>
-      </div>
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, name: e.target.value }))
+  }
 
-      <div className="space-y-2">
-        <Label htmlFor="purchaseDate">Date d'achat *</Label>
-        <Input
-          id="purchaseDate"
-          type="date"
-          value={formData.purchaseDate}
-          onChange={(e) => setFormData((prev) => ({ ...prev, purchaseDate: e.target.value }))}
-          required
-        />
-      </div>
+  const handleSpeciesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, species: e.target.value }))
+  }
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="waterAmount">Quantité d'eau (ml) *</Label>
-          <Input
-            id="waterAmount"
-            type="number"
-            min="50"
-            max="2000"
-            step="50"
-            value={formData.waterAmount}
-            onChange={(e) => setFormData((prev) => ({ ...prev, waterAmount: Number.parseInt(e.target.value) }))}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="water_frequency">Fréquence d'arrosage (jours) *</Label>
-          <Input
-            id="water_frequency"
-            type="number"
-            min="1"
-            value={formData.waterFrequency}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, waterFrequency: Number.parseInt(e.target.value) || 7 }))
-            }
-            required
-          />
-        </div>
-      </div>
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, purchaseDate: e.target.value }))
+  }
 
-      <div className="space-y-2">
-        <Label htmlFor="image">Image de la plante *</Label>
-        <div className="flex gap-2">
-          <Input
-            ref={fileInputRef}
-            id="image"
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="hidden"
-            required
-          />
-          <Button
-            type="button"
-            variant="outline"
-            className="flex-1 justify-start"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            Choisir un fichier
-          </Button>
-          <Button type="button" variant="outline" size="icon" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-4 w-4" />
-          </Button>
-        </div>
-        {formData.image && (
-          <div className="mt-2">
-            <img
-              src={formData.image || "/placeholder.svg"}
-              alt="Aperçu"
-              className="h-20 w-20 object-cover rounded-md border"
-            />
-          </div>
-        )}
-      </div>
+  const handleWaterAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, waterAmount: Number.parseInt(e.target.value) }))
+  }
 
-      {/* notes removed */}
-    </div>
-  )
+  const handleFrequencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, waterFrequency: Number.parseInt(e.target.value) || 7 }))
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Leaf className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold">GreenTrack</h1>
-                <p className="text-sm text-muted-foreground">Tableau de bord</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link href="/notifications">
-                <Button variant="outline" size="sm">
-                  <Bell className="h-4 w-4 mr-2" />
-                </Button>
-              </Link>
-              <Link href="/history">
-                <Button variant="outline" size="sm">
-                  <Calendar className="h-4 w-4 mr-2" />
-                </Button>
-              </Link>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-              </Button>
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>JD</AvatarFallback>
-              </Avatar>
-            </div>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader />
 
       <main className="container mx-auto px-4 py-8 space-y-8">
         {/* Statistiques */}
@@ -462,22 +343,110 @@ export default function DashboardPage() {
                 Ajouter une plante
               </Button>
             </DialogTrigger>
-            <DialogContent
-              className="sm:max-w-[500px]"
-              onInteractOutside={(e) => e.preventDefault()}
-              onEscapeKeyDown={(e) => e.preventDefault()}
-              onPointerDownOutside={(e) => e.preventDefault()}
-              onFocusOutside={(e) => e.preventDefault()}
-              onOpenAutoFocus={(e) => e.preventDefault()}
-              onCloseAutoFocus={(e) => e.preventDefault()}
-            >
+            <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
                 <DialogTitle>Ajouter une nouvelle plante</DialogTitle>
                 <DialogDescription>
                   Remplissez les informations de votre nouvelle plante pour commencer le suivi.
                 </DialogDescription>
               </DialogHeader>
-              <PlantForm />
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Nom de la plante *</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={handleNameChange}
+                      placeholder="ex: Mon Monstera"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="species">Espèce *</Label>
+                    <Input
+                      id="species"
+                      value={formData.species}
+                      onChange={handleSpeciesChange}
+                      placeholder="ex: Monstera deliciosa"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="purchaseDate">Date d'achat *</Label>
+                  <Input
+                    id="purchaseDate"
+                    type="date"
+                    value={formData.purchaseDate}
+                    onChange={handleDateChange}
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="waterAmount">Quantité d'eau (ml) *</Label>
+                    <Input
+                      id="waterAmount"
+                      type="number"
+                      min="50"
+                      max="2000"
+                      step="50"
+                      value={formData.waterAmount}
+                      onChange={handleWaterAmountChange}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="water_frequency">Fréquence d'arrosage (jours) *</Label>
+                    <Input
+                      id="water_frequency"
+                      type="number"
+                      min="1"
+                      value={formData.waterFrequency}
+                      onChange={handleFrequencyChange}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="image">Image de la plante *</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      ref={fileInputRef}
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="flex-1 justify-start"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      Choisir un fichier
+                    </Button>
+                    <Button type="button" variant="outline" size="icon" onClick={() => fileInputRef.current?.click()}>
+                      <Upload className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {formData.image && (
+                    <div className="mt-2">
+                      <img
+                        src={formData.image || "/placeholder.svg"}
+                        alt="Aperçu"
+                        className="h-20 w-20 object-cover rounded-md border"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                   Annuler
@@ -593,27 +562,115 @@ export default function DashboardPage() {
 
                       <Dialog
                         open={editingPlant?.id === plant.id}
-                        onOpenChange={() => {}}
+                        onOpenChange={(open) => !open && setEditingPlant(null)}
                       >
                         <DialogTrigger asChild>
                           <Button size="sm" variant="outline" onClick={() => handleEditPlant(plant)}>
                             <Edit className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
-                        <DialogContent
-                          className="sm:max-w-[500px]"
-                          onInteractOutside={(e) => e.preventDefault()}
-                          onEscapeKeyDown={(e) => e.preventDefault()}
-                          onPointerDownOutside={(e) => e.preventDefault()}
-                          onFocusOutside={(e) => e.preventDefault()}
-                          onOpenAutoFocus={(e) => e.preventDefault()}
-                          onCloseAutoFocus={(e) => e.preventDefault()}
-                        >
+                        <DialogContent className="sm:max-w-[500px]">
                           <DialogHeader>
                             <DialogTitle>Modifier {plant.name}</DialogTitle>
                             <DialogDescription>Modifiez les informations de votre plante.</DialogDescription>
                           </DialogHeader>
-                          <PlantForm isEdit />
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="edit-name">Nom de la plante *</Label>
+                                <Input
+                                  id="edit-name"
+                                  value={formData.name}
+                                  onChange={handleNameChange}
+                                  placeholder="ex: Mon Monstera"
+                                  required
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="edit-species">Espèce *</Label>
+                                <Input
+                                  id="edit-species"
+                                  value={formData.species}
+                                  onChange={handleSpeciesChange}
+                                  placeholder="ex: Monstera deliciosa"
+                                  required
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="edit-purchaseDate">Date d'achat *</Label>
+                              <Input
+                                id="edit-purchaseDate"
+                                type="date"
+                                value={formData.purchaseDate}
+                                onChange={handleDateChange}
+                                required
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="edit-waterAmount">Quantité d'eau (ml) *</Label>
+                                <Input
+                                  id="edit-waterAmount"
+                                  type="number"
+                                  min="50"
+                                  max="2000"
+                                  step="50"
+                                  value={formData.waterAmount}
+                                  onChange={handleWaterAmountChange}
+                                  required
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="edit-water_frequency">Fréquence d'arrosage (jours) *</Label>
+                                <Input
+                                  id="edit-water_frequency"
+                                  type="number"
+                                  min="1"
+                                  value={formData.waterFrequency}
+                                  onChange={handleFrequencyChange}
+                                  required
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="edit-image">Image de la plante *</Label>
+                              <div className="flex gap-2">
+                                <Input
+                                  ref={fileInputRef}
+                                  id="edit-image"
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleImageUpload}
+                                  className="hidden"
+                                  required
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  className="flex-1 justify-start"
+                                  onClick={() => fileInputRef.current?.click()}
+                                >
+                                  Choisir un fichier
+                                </Button>
+                                <Button type="button" variant="outline" size="icon" onClick={() => fileInputRef.current?.click()}>
+                                  <Upload className="h-4 w-4" />
+                                </Button>
+                              </div>
+                              {formData.image && (
+                                <div className="mt-2">
+                                  <img
+                                    src={formData.image || "/placeholder.svg"}
+                                    alt="Aperçu"
+                                    className="h-20 w-20 object-cover rounded-md border"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </div>
                           <DialogFooter>
                             <Button variant="outline" onClick={() => setEditingPlant(null)}>
                               Annuler

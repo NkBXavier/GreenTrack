@@ -8,10 +8,12 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Bell, BellOff, Droplets, Leaf, AlertTriangle, CheckCircle, Settings, Calendar, ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { DashboardHeader } from "@/components/dashboard-header"
+import { useRouter } from "next/navigation"
 
 interface Notification {
   id: string
-  type: "watering" | "fertilizing" | "warning" | "success"
+  type: "watering" | "warning" | "success"
   title: string
   message: string
   plantName?: string
@@ -57,9 +59,9 @@ const mockNotifications: Notification[] = [
   },
   {
     id: "4",
-    type: "fertilizing",
-    title: "Fertilisation recommandée",
-    message: "Il est temps de fertiliser votre Sansevieria",
+    type: "watering",
+    title: "Arrosage recommandé",
+    message: "Il est temps d'arroser votre Sansevieria",
     plantName: "Sansevieria",
     plantImage: "/snake-plant-sansevieria.png",
     timestamp: "2024-01-14T10:00:00Z",
@@ -70,7 +72,6 @@ const mockNotifications: Notification[] = [
 
 const notificationIcons = {
   watering: Droplets,
-  fertilizing: Leaf,
   warning: AlertTriangle,
   success: CheckCircle,
 }
@@ -82,6 +83,7 @@ const priorityColors = {
 }
 
 export default function NotificationsPage() {
+  const router = useRouter()
   const [notifications, setNotifications] = useState(mockNotifications)
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [emailNotifications, setEmailNotifications] = useState(true)
@@ -113,52 +115,15 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 p-4 md:p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <header className="border-b bg-card/50 backdrop-blur-sm rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link href="/dashboard">
-                <Button variant="ghost" size="sm">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Retour
-                </Button>
-              </Link>
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Bell className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold">Notifications</h1>
-                  <p className="text-sm text-muted-foreground">Gérez vos alertes et rappels de soins</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link href="/plants">
-                <Button variant="outline" size="sm">
-                  <Leaf className="h-4 w-4 mr-2" />
-                  Plantes
-                </Button>
-              </Link>
-              <Link href="/watering">
-                <Button variant="outline" size="sm">
-                  <Droplets className="h-4 w-4 mr-2" />
-                  Rappels
-                </Button>
-              </Link>
-              <Link href="/history">
-                <Button variant="outline" size="sm">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Historique
-                </Button>
-              </Link>
-              <Button variant="outline" size="sm">
-                <Settings className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </header>
+    <div className="min-h-screen bg-background">
+      <DashboardHeader 
+        title="Notifications" 
+        subtitle="Gérez vos alertes et rappels de soins"
+        showBackButton={true}
+        onBackClick={() => router.push("/dashboard")}
+      />
+
+      <main className="container mx-auto px-4 py-8 space-y-8">
 
         {/* En-tête */}
         <div className="flex items-center justify-between">
@@ -170,10 +135,6 @@ export default function NotificationsPage() {
                 Tout marquer comme lu
               </Button>
             )}
-            <Button variant="outline" className="gap-2 bg-transparent">
-              <Settings className="h-4 w-4" />
-              Paramètres
-            </Button>
           </div>
         </div>
 
@@ -340,7 +301,7 @@ export default function NotificationsPage() {
             })
           )}
         </div>
-      </div>
+      </main>
     </div>
   )
 }

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Leaf, ArrowLeft, Droplets, Calendar, AlertTriangle, Clock } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
+import { DashboardHeader } from "@/components/dashboard-header"
 
 // Types pour l'historique d'arrosage
 interface WateringRecord {
@@ -24,7 +25,7 @@ const mockWateringHistory: Record<number, WateringRecord[]> = {
     { id: 5, date: "2024-01-03", amount: 300 },
   ],
   2: [
-    { id: 1, date: "2024-01-12", amount: 400, notes: "Feuilles un peu flétries" },
+    { id: 1, date: "2024-01-12", amount: 400 },
     { id: 2, date: "2024-01-07", amount: 400 },
     { id: 3, date: "2024-01-02", amount: 350 },
   ],
@@ -172,26 +173,10 @@ export default function PlantDetailsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm" onClick={() => router.push("/dashboard")}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour
-            </Button>
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Leaf className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold">{plant.name}</h1>
-                <p className="text-sm text-muted-foreground">{plant.species}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader 
+        showBackButton={true}
+        onBackClick={() => router.push("/dashboard")}
+      />
 
       <main className="container mx-auto px-4 py-8 space-y-8">
         {/* Informations principales de la plante */}
@@ -227,13 +212,6 @@ export default function PlantDetailsPage() {
                   <p className="font-medium">{formatDate(plant.purchaseDate)}</p>
                 </div>
               </div>
-
-              {plant.notes && (
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">Notes</p>
-                  <p className="text-sm bg-muted/50 p-3 rounded-md">{plant.notes}</p>
-                </div>
-              )}
             </CardContent>
           </Card>
 
@@ -276,11 +254,6 @@ export default function PlantDetailsPage() {
                   <p className="text-sm font-medium text-destructive">Cette plante a besoin d'eau !</p>
                 </div>
               )}
-
-              <Button className="w-full" variant={plant.needsWater ? "default" : "outline"} onClick={handleWaterPlant}>
-                <Droplets className="h-4 w-4 mr-2" />
-                Arroser maintenant
-              </Button>
             </CardContent>
           </Card>
         </div>

@@ -19,6 +19,8 @@ import {
   Settings,
 } from "lucide-react"
 import Link from "next/link"
+import { DashboardHeader } from "@/components/dashboard-header"
+import { useRouter } from "next/navigation"
 
 interface WateringRecord {
   id: string
@@ -27,7 +29,7 @@ interface WateringRecord {
   date: string
   time: string
   amount: string
-  type: "watering" | "fertilizing" | "repotting" | "pruning"
+  type: "watering"
 }
 
 const mockHistory: WateringRecord[] = [
@@ -56,7 +58,7 @@ const mockHistory: WateringRecord[] = [
     date: "2024-01-14",
     time: "18:45",
     amount: "150ml",
-    type: "fertilizing",
+    type: "watering",
   },
   {
     id: "4",
@@ -74,33 +76,26 @@ const mockHistory: WateringRecord[] = [
     date: "2024-01-12",
     time: "11:00",
     amount: "200ml",
-    notes: "Rempotage dans un pot plus grand",
-    type: "repotting",
+    type: "watering",
   },
 ]
 
 const typeLabels = {
   watering: "Arrosage",
-  fertilizing: "Fertilisation",
-  repotting: "Rempotage",
-  pruning: "Taille",
 }
 
 const typeIcons = {
   watering: Droplets,
-  fertilizing: Leaf,
-  repotting: TrendingUp,
-  pruning: CheckCircle,
 }
 
 export default function HistoryPage() {
+  const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState<string>("all")
   const [filterPeriod, setFilterPeriod] = useState<string>("all")
 
   const filteredHistory = mockHistory.filter((record) => {
     const matchesSearch = record.plantName.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesType = filterType === "all" || record.type === filterType
 
     let matchesPeriod = true
     if (filterPeriod !== "all") {
@@ -121,7 +116,7 @@ export default function HistoryPage() {
       }
     }
 
-    return matchesSearch && matchesType && matchesPeriod
+    return matchesSearch && matchesPeriod
   })
 
   const stats = {
@@ -132,65 +127,19 @@ export default function HistoryPage() {
       const daysDiff = Math.floor((now.getTime() - recordDate.getTime()) / (1000 * 60 * 60 * 24))
       return daysDiff <= 7
     }).length,
-    totalWater: mockHistory.filter((r) => r.type === "watering").reduce((sum, r) => sum + Number.parseInt(r.amount), 0),
+    totalWater: mockHistory.reduce((sum, r) => sum + Number.parseInt(r.amount), 0),
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 p-4 md:p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <header className="border-b bg-card/50 backdrop-blur-sm rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link href="/dashboard">
-                <Button variant="ghost" size="sm">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Retour
-                </Button>
-              </Link>
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Calendar className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold">Historique des soins</h1>
-                  <p className="text-sm text-muted-foreground">Suivez toutes les actions effectuées sur vos plantes</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link href="/plants">
-                <Button variant="outline" size="sm">
-                  <Leaf className="h-4 w-4 mr-2" />
-                  Plantes
-                </Button>
-              </Link>
-              <Link href="/watering">
-                <Button variant="outline" size="sm">
-                  <Droplets className="h-4 w-4 mr-2" />
-                  Rappels
-                </Button>
-              </Link>
-              <Link href="/notifications">
-                <Button variant="outline" size="sm">
-                  <Bell className="h-4 w-4 mr-2" />
-                  Notifications
-                </Button>
-              </Link>
-              <Button variant="outline" size="sm">
-                <Settings className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </header>
+    <div className="min-h-screen bg-background">
+      <DashboardHeader 
+        title="Historique" 
+        subtitle="Actions effectuées"
+        showBackButton={true}
+        onBackClick={() => router.push("/dashboard")}
+      />
 
-        {/* En-tête */}
-        <div className="flex items-center justify-between">
-          <div></div>
-          <Button variant="outline" className="gap-2 bg-transparent">
-            <Calendar className="h-4 w-4" />
-            Exporter
-          </Button>
-        </div>
+      <main className="container mx-auto px-4 py-8 space-y-8">
 
         {/* Statistiques */}
         <div className="grid gap-4 md:grid-cols-3">
@@ -244,18 +193,6 @@ export default function HistoryPage() {
                   />
                 </div>
               </div>
-              <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="w-full sm:w-48">
-                  <SelectValue placeholder="Type d'action" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les actions</SelectItem>
-                  <SelectItem value="watering">Arrosage</SelectItem>
-                  <SelectItem value="fertilizing">Fertilisation</SelectItem>
-                  <SelectItem value="repotting">Rempotage</SelectItem>
-                  <SelectItem value="pruning">Taille</SelectItem>
-                </SelectContent>
-              </Select>
               <Select value={filterPeriod} onValueChange={setFilterPeriod}>
                 <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Période" />
@@ -332,7 +269,7 @@ export default function HistoryPage() {
             })
           )}
         </div>
-      </div>
+      </main>
     </div>
   )
 }
